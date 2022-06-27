@@ -3,7 +3,12 @@ guid: 68de7a942af5e81429cd916dcbaf9b5e
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Stickman
+    second: {fileID: 2100000, guid: b0db92b0d59c71c4db1701284674f2d7, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
