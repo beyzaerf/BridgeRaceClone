@@ -1,16 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Stack : MonoBehaviour
 {
     private int brickCount;
-    private void OnCollisionEnter(Collision collision)
+    private GameObject prevObject;
+    [SerializeField] private GameObject stackObject;
+    
+    private void Start()
     {
-        if(collision.transform.CompareTag("Brick")) //Picking up bricks
+        prevObject = stackObject.transform.GetChild(0).gameObject; //Initially, previous object is set to an empty object that is the child of stackObject
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.transform.CompareTag("PinkBrick")) //Picking up bricks
         {
-            collision.transform.position = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
-            collision.transform.parent = transform; //Making it its parent
+            other.transform.SetParent(stackObject.transform); //Changing brick's parent to stackObject
+            Vector3 pos = prevObject.transform.localPosition; //Stacking
+            pos.y += 0.2f;
+            pos.x = 0;
+            pos.z = 0;
+
+            other.transform.localRotation = new Quaternion(0, 0.7071068f, 0, 0.7071068f);
+            prevObject = other.gameObject;
+            other.transform.DOLocalMove(pos, 0.2f);
+
             brickCount++;
         }
     }
