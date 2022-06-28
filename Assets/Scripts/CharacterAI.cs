@@ -27,7 +27,7 @@ public class CharacterAI : MonoBehaviour
     }
     private void Update()
     {
-        if(!haveTarget && targets.Count >= 0)
+        if(!haveTarget && targets.Count > 0)
         {
             ChooseTarget();
         }
@@ -65,10 +65,14 @@ public class CharacterAI : MonoBehaviour
             other.transform.SetParent(stackObject.transform); //Changing brick's parent to stackObject
             Vector3 pos = prevObject.transform.localPosition; //Stacking
             pos.y += 0.2f;
-            //pos.x = 0;
-            //pos.z = 0;
+            pos.x = 0;
+            pos.z = 0;
 
+            targets.Remove(other.gameObject);
+            other.tag = "Untagged";
+            haveTarget = false;
             other.transform.localRotation = new Quaternion(0, 0.7071068f, 0, 0.7071068f);
+            other.transform.DOLocalMove(pos, 0.2f);
             prevObject = other.gameObject;
         }
     }
