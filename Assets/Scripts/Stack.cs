@@ -28,6 +28,8 @@ public class Stack : MonoBehaviour
             other.transform.DOLocalMove(pos, 0.2f);
 
             brickCount++;
+
+            BrickSpawner.instance.GenerateCubes(1);
         }
     }
 }

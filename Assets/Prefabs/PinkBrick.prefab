@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5456111635932034520}
   - component: {fileID: 5377137887996056469}
   - component: {fileID: 4545090160892607391}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PinkBrick
   m_TagString: PinkBrick
   m_Icon: {fileID: 0}
