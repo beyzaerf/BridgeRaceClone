@@ -42,8 +42,7 @@ public class PlayerMovement : MonoBehaviour
             hitVec.y = transform.position.y;
 
             transform.position = Vector3.MoveTowards(transform.position, Vector3.Lerp(transform.position, hitVec, lerpValue), Time.deltaTime * speed);
-            Vector3 newMovePoint = new Vector3(hit.point.x, transform.position.y, hit.point.z);
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(newMovePoint - transform.position), turnSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(hitVec - transform.position), turnSpeed * Time.deltaTime);
             
             if (!animator.GetBool("running")) //Animation
                 animator.SetBool("running", true);

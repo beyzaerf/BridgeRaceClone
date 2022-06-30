@@ -11,7 +11,7 @@ public class CharacterAI : MonoBehaviour
     public List<GameObject> targets = new List<GameObject>();
     private NavMeshAgent agent;
     private Animator animator;
-    private bool haveTarget = false;
+    public bool haveTarget;
     private Vector3 targetTransform;
     private GameObject prevObject;
     [SerializeField] private GameObject stackObject;
@@ -44,10 +44,10 @@ public class CharacterAI : MonoBehaviour
 
     void ChooseTarget()
     {
-        if (bricks.Count > 3)
+        if (bricks.Count > 3) //NOT WORKING PROPERLY! If character has more than 3 bricks collected, it should go to random bridge 
         {
             int randomBridge = Random.Range(0, bridges.Length);
-            targetTransform = bridges[randomBridge].localPosition;
+            targetTransform = bridges[randomBridge].GetChild(0).position;
         }
         else
         {
@@ -83,6 +83,7 @@ public class CharacterAI : MonoBehaviour
     {
         if (other.gameObject.tag.StartsWith(transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material.name.Substring(0, 1))) //Picking up bricks
         {
+            haveTarget = false;
             other.transform.SetParent(stackObject.transform); //Changing brick's parent to stackObject
             Vector3 pos = prevObject.transform.localPosition; //Stacking
             pos.y += 0.2f;
@@ -92,7 +93,6 @@ public class CharacterAI : MonoBehaviour
             bricks.Add(other.gameObject);
             targets.Remove(other.gameObject);
 
-            haveTarget = false;
             other.transform.localRotation = new Quaternion(0, 0.7071068f, 0, 0.7071068f);
             other.transform.DOLocalMove(pos, 0.2f);
             prevObject = other.gameObject;

@@ -46,6 +46,7 @@ public class BrickSpawner : MonoBehaviour
         }
         g.SetActive(true);
         g.transform.position = pos;
+        g.transform.parent = parent;
         if(characterAI!)
         {
             characterAI.targets.Add(g);

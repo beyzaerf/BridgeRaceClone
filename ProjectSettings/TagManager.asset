@@ -9,6 +9,10 @@ TagManager:
   - BlueBrick
   - RedBrick
   - PinkBrick
+  - Bridge
+  - BridgeR
+  - BridgeP
+  - BridgeG
   layers:
   - Default
   - TransparentFX
@@ -17,7 +21,7 @@ TagManager:
   - Water
   - UI
   - character
-  - 
+  - brick
   - 
   - 
   - 
