@@ -81,7 +81,7 @@ public class CharacterAI : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag.StartsWith(transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material.name.Substring(0, 1))) //Picking up bricks
+        if (other.transform.tag.StartsWith(transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material.name.Substring(0, 1))) //Picking up bricks
         {
             haveTarget = false;
             other.transform.SetParent(stackObject.transform); //Changing brick's parent to stackObject
@@ -98,6 +98,16 @@ public class CharacterAI : MonoBehaviour
             prevObject = other.gameObject;
 
             BrickSpawner.instance.GenerateCubes((int)characterEnum, this);
+        }
+        else if (other.transform.tag.StartsWith("Bridge") && !other.transform.tag.StartsWith("Bridge" + transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material.name.Substring(0, 1)))
+        {
+            Debug.Log("ife girdi");
+            GameObject myObject = bricks[bricks.Count - 1];
+            bricks.RemoveAt(bricks.Count - 1);
+            Destroy(myObject);
+
+            other.GetComponent<MeshRenderer>().material = transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material;
+            other.GetComponent<MeshRenderer>().enabled = true;
         }
     }
 }

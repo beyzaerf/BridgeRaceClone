@@ -34,7 +34,7 @@ public class Stack : MonoBehaviour
         //Leaving bricks
         else if (other.transform.tag.StartsWith("Bridge") && !other.transform.CompareTag("BridgeP"))
         { // If the object we touch's tag starts with Bridge but doesnt equal BridgeP (meaning that we already activated it)
-            if(bricks.Count > 0)
+            if(bricks.Count > 1)
             {
                 GameObject myObject = bricks[bricks.Count - 1];
                 bricks.RemoveAt(bricks.Count - 1);

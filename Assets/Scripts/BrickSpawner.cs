@@ -55,6 +55,6 @@ public class BrickSpawner : MonoBehaviour
 
     private Vector3 giveRandomPosition()
     {
-        return new Vector3(Random.Range(minX, maxX), 0.25f, Random.Range(minZ, maxZ));
+        return new Vector3(Random.Range(minX, maxX), 0.33f, Random.Range(minZ, maxZ));
     }
 }
