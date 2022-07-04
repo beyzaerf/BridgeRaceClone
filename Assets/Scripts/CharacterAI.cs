@@ -11,7 +11,7 @@ public class CharacterAI : MonoBehaviour
     public List<GameObject> targets = new List<GameObject>();
     private NavMeshAgent agent;
     private Animator animator;
-    public bool haveTarget;
+    private bool haveTarget;
     private Vector3 targetTransform;
     private GameObject prevObject;
     [SerializeField] private GameObject stackObject;
@@ -35,19 +35,19 @@ public class CharacterAI : MonoBehaviour
         {
             ChooseTarget();
         }
-        else
-        {
-            if (animator.GetBool("running"))
-                animator.SetBool("running", false);
-        }
     }
 
     void ChooseTarget()
     {
-        if (bricks.Count > 3) //NOT WORKING PROPERLY! If character has more than 3 bricks collected, it should go to random bridge 
+        if (bricks.Count > 5) 
         {
-            int randomBridge = Random.Range(0, bridges.Length);
-            targetTransform = bridges[randomBridge].GetChild(0).position;
+            //int randomBridge = Random.Range(0, bridges.Length);
+            //targetTransform = bridges[randomBridge].GetChild(0).position;
+            if (characterEnum == Character.Zero)
+                targetTransform = bridges[0].GetChild(0).position;
+            else if (characterEnum == Character.Two)
+                targetTransform = bridges[2].GetChild(0).position;
+
         }
         else
         {
@@ -61,7 +61,6 @@ public class CharacterAI : MonoBehaviour
                     ourColors.Add(hitColliders[i].transform.position);
                 }
             }
-
             if (ourColors.Count > 0)
             {
                 targetTransform = ourColors[0];
@@ -99,15 +98,41 @@ public class CharacterAI : MonoBehaviour
 
             BrickSpawner.instance.GenerateCubes((int)characterEnum, this);
         }
-        else if (other.transform.tag.StartsWith("Bridge") && !other.transform.tag.StartsWith("Bridge" + transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material.name.Substring(0, 1)))
+        else if (other.tag.StartsWith("Bridge"))
         {
-            Debug.Log("ife girdi");
-            GameObject myObject = bricks[bricks.Count - 1];
-            bricks.RemoveAt(bricks.Count - 1);
-            Destroy(myObject);
+            MeshRenderer otherMesh = other.transform.GetComponent<MeshRenderer>();
+            Material myMaterial = transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material;
 
-            other.GetComponent<MeshRenderer>().material = transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material;
-            other.GetComponent<MeshRenderer>().enabled = true;
+            if(bricks.Count > 1)
+            {
+                agent.enabled = false;
+                GameObject myObject = bricks[bricks.Count - 1];
+                bricks.RemoveAt(bricks.Count - 1);
+                Destroy(myObject);
+
+                if (other.CompareTag("Bridge"))
+                {
+                    otherMesh.material = myMaterial;
+                    otherMesh.enabled = true;
+                    other.tag = "Bridge" + myMaterial.name.Substring(0, 1);
+                }
+                else if (other.tag.StartsWith("Bridge" + myMaterial.name.Substring(0, 1)))
+                {
+
+                }
+                else
+                {
+                    other.transform.GetChild(0).GetComponent<MeshRenderer>().material = myMaterial;
+                    other.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
+                }
+                transform.position += Vector3.forward * 0.5f;
+            }
+            else
+            {
+                agent.enabled = true;
+                prevObject = stackObject.transform.GetChild(0).gameObject;
+                ChooseTarget();
+            }
         }
     }
 }
