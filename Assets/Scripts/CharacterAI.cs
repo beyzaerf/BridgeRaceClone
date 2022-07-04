@@ -39,7 +39,7 @@ public class CharacterAI : MonoBehaviour
 
     void ChooseTarget()
     {
-        if (bricks.Count > 5) 
+        if (bricks.Count > 6) 
         {
             //int randomBridge = Random.Range(0, bridges.Length);
             //targetTransform = bridges[randomBridge].GetChild(0).position;
@@ -103,25 +103,28 @@ public class CharacterAI : MonoBehaviour
             MeshRenderer otherMesh = other.transform.GetComponent<MeshRenderer>();
             Material myMaterial = transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material;
 
-            if(bricks.Count > 1)
+            if(bricks.Count > 0)
             {
-                agent.enabled = false;
-                GameObject myObject = bricks[bricks.Count - 1];
-                bricks.RemoveAt(bricks.Count - 1);
-                Destroy(myObject);
-
-                if (other.CompareTag("Bridge"))
+                if (other.CompareTag("Bridge") && !other.tag.StartsWith(("Bridge") + myMaterial.name.Substring(0, 1)))
                 {
+                    agent.enabled = false;
+                    GameObject myObject = bricks[bricks.Count - 1];
+                    bricks.RemoveAt(bricks.Count - 1);
+                    Destroy(myObject);
                     otherMesh.material = myMaterial;
                     otherMesh.enabled = true;
                     other.tag = "Bridge" + myMaterial.name.Substring(0, 1);
                 }
                 else if (other.tag.StartsWith("Bridge" + myMaterial.name.Substring(0, 1)))
                 {
-
+                    Debug.Log("bridge + ya girdi");
                 }
                 else
                 {
+                    agent.enabled = false;
+                    GameObject myObject = bricks[bricks.Count - 1];
+                    bricks.RemoveAt(bricks.Count - 1);
+                    Destroy(myObject);
                     other.transform.GetChild(0).GetComponent<MeshRenderer>().material = myMaterial;
                     other.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
                 }
