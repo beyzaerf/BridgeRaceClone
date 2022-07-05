@@ -17,6 +17,8 @@ public class CharacterAI : MonoBehaviour
     [SerializeField] private GameObject stackObject;
     [SerializeField] private List<GameObject> bricks;
     [SerializeField] Transform[] bridges;
+    Transform bridgeBeginning = null;
+    private bool reachedLast;
 
     private void Start()
     {
@@ -39,7 +41,7 @@ public class CharacterAI : MonoBehaviour
 
     void ChooseTarget()
     {
-        if (bricks.Count > 6) 
+        if (bricks.Count > 4) // choose bridge
         {
             //int randomBridge = Random.Range(0, bridges.Length);
             //targetTransform = bridges[randomBridge].GetChild(0).position;
@@ -47,11 +49,10 @@ public class CharacterAI : MonoBehaviour
                 targetTransform = bridges[0].GetChild(0).position;
             else if (characterEnum == Character.Two)
                 targetTransform = bridges[2].GetChild(0).position;
-
         }
         else
         {
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position, 20);
+            Collider[] hitColliders = Physics.OverlapSphere(transform.position, 10);
             List<Vector3> ourColors = new List<Vector3>();
 
             for (int i = 0; i < hitColliders.Length; i++)
@@ -80,7 +81,14 @@ public class CharacterAI : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag.StartsWith(transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material.name.Substring(0, 1))) //Picking up bricks
+        if (other.CompareTag("BridgeBeginning"))
+        {
+            bridgeBeginning = other.transform;
+        }
+        MeshRenderer otherMesh = other.transform.GetComponent<MeshRenderer>();
+        Material myMaterial = transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material;
+
+        if (other.transform.tag.StartsWith(myMaterial.name.Substring(0, 1))) //Picking up bricks
         {
             haveTarget = false;
             other.transform.SetParent(stackObject.transform); //Changing brick's parent to stackObject
@@ -100,42 +108,46 @@ public class CharacterAI : MonoBehaviour
         }
         else if (other.tag.StartsWith("Bridge"))
         {
-            MeshRenderer otherMesh = other.transform.GetComponent<MeshRenderer>();
-            Material myMaterial = transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material;
-
             if(bricks.Count > 0)
             {
-                if (other.CompareTag("Bridge") && !other.tag.StartsWith(("Bridge") + myMaterial.name.Substring(0, 1)))
+                if (other.tag.StartsWith("Bridge") && !other.tag.StartsWith(("Bridge") + myMaterial.name.Substring(0, 1)))
                 {
                     agent.enabled = false;
                     GameObject myObject = bricks[bricks.Count - 1];
                     bricks.RemoveAt(bricks.Count - 1);
                     Destroy(myObject);
-                    otherMesh.material = myMaterial;
-                    otherMesh.enabled = true;
+                    if(otherMesh != null)
+                    {
+                        otherMesh.material = myMaterial;
+                        otherMesh.enabled = true;
+                    }
+                    else
+                    {
+                        other.GetComponent<BoxCollider>().isTrigger = true;
+                        transform.position += Vector3.forward;
+                    }
                     other.tag = "Bridge" + myMaterial.name.Substring(0, 1);
                 }
                 else if (other.tag.StartsWith("Bridge" + myMaterial.name.Substring(0, 1)))
                 {
-                    Debug.Log("bridge + ya girdi");
+                    transform.position += Vector3.forward;
                 }
-                else
-                {
-                    agent.enabled = false;
-                    GameObject myObject = bricks[bricks.Count - 1];
-                    bricks.RemoveAt(bricks.Count - 1);
-                    Destroy(myObject);
-                    other.transform.GetChild(0).GetComponent<MeshRenderer>().material = myMaterial;
-                    other.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
-                }
-                transform.position += Vector3.forward * 0.5f;
+                transform.DOMoveZ(transform.position.z + 0.5f, 0.2f);
             }
-            else
+            else if(!reachedLast)
             {
-                agent.enabled = true;
+                reachedLast = true;
+                transform.DORotate(new Vector3(0, transform.eulerAngles.y + 180, 0), 0.2f).OnComplete(() =>
+                {
+                    transform.DOMove(bridgeBeginning.position, 1).OnComplete(() =>
+                    {
+                        agent.enabled = true;
+                        ChooseTarget();
+                    });
+                });
                 prevObject = stackObject.transform.GetChild(0).gameObject;
-                ChooseTarget();
             }
+            reachedLast = false;
         }
     }
 }

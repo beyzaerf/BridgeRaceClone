@@ -42,14 +42,12 @@ public class Stack : MonoBehaviour
 
                 other.GetComponent<MeshRenderer>().material = transform.GetChild(1).GetComponent<SkinnedMeshRenderer>().material; //Changing the material of the bridge to our color
                 other.GetComponent<MeshRenderer>().enabled = true; //Enabling the bricks on the bridge
+                other.GetComponent<BoxCollider>().isTrigger = false;
 
                 other.tag = "BridgeP"; //Changing the tag after leaving bricks
             }
-            else
-            {
-                prevObject = bricks[0].gameObject;
-            }
-
+            prevObject = bricks[0].gameObject;
         }
     }
+    
 }
