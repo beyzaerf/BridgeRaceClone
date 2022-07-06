@@ -8,6 +8,7 @@ public class Stack : MonoBehaviour
     private GameObject prevObject;
     [SerializeField] private GameObject stackObject;
     [SerializeField] private List<GameObject> bricks;
+    [SerializeField] private GameObject colliderPrefab;
 
     private void Start()
     {
@@ -34,6 +35,7 @@ public class Stack : MonoBehaviour
         //Leaving bricks
         else if (other.transform.tag.StartsWith("Bridge") && !other.transform.CompareTag("BridgeP"))
         { // If the object we touch's tag starts with Bridge but doesnt equal BridgeP (meaning that we already activated it)
+            //GameObject collObject = null;
             if(bricks.Count > 1)
             {
                 GameObject myObject = bricks[bricks.Count - 1];
@@ -46,7 +48,13 @@ public class Stack : MonoBehaviour
 
                 other.tag = "BridgeP"; //Changing the tag after leaving bricks
             }
-            prevObject = bricks[0].gameObject;
+            else if (bricks.Count <= 1) //If the bricks the player is carrying ends
+            {
+                Vector3 playersPos = new(transform.position.x, transform.position.y, transform.position.z + 0.2f);
+                Instantiate(colliderPrefab, playersPos, Quaternion.Euler(0, 0, 0));
+            }
+            //Destroy(collObject);
+            prevObject = bricks[0];
         }
     }
     
