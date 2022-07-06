@@ -149,6 +149,17 @@ public class CharacterAI : MonoBehaviour
             }
             reachedLast = false;
         }
+        else if(other.CompareTag("End")) //When ai reaches the end of the bridge
+        {
+            transform.DOMoveZ(23, 0.2f).OnComplete(() =>
+            {
+                agent.enabled = true; //reactivate navmeshagent
+                prevObject = stackObject.transform.GetChild(0).gameObject; 
+                targets.Clear(); //empty targets because it is filled with previous levels bricks 
+                haveTarget = false;
+                ChooseTarget(); //choose new targets 
+            });
+        }
     }
 }
 public enum Character

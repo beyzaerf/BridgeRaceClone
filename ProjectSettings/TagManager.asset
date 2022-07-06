@@ -14,6 +14,7 @@ TagManager:
   - BridgeP
   - BridgeG
   - BridgeBeginning
+  - End
   layers:
   - Default
   - TransparentFX
