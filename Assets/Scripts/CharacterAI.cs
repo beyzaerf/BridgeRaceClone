@@ -19,6 +19,7 @@ public class CharacterAI : MonoBehaviour
     [SerializeField] Transform[] bridges;
     Transform bridgeBeginning = null;
     private bool reachedLast;
+    private int platform = 0;
 
     private void Start()
     {
@@ -45,10 +46,13 @@ public class CharacterAI : MonoBehaviour
         {
             //int randomBridge = Random.Range(0, bridges.Length);
             //targetTransform = bridges[randomBridge].GetChild(0).position;
-            if (characterEnum == Character.Zero)
-                targetTransform = bridges[0].GetChild(0).position;
-            else if (characterEnum == Character.Two)
-                targetTransform = bridges[2].GetChild(0).position;
+            if(platform == 0)
+            {
+                if (characterEnum == Character.Zero)
+                    targetTransform = bridges[0].GetChild(0).position;
+                else if (characterEnum == Character.Two)
+                    targetTransform = bridges[2].GetChild(0).position;
+            }
         }
         else
         {
@@ -151,6 +155,7 @@ public class CharacterAI : MonoBehaviour
         }
         else if(other.CompareTag("End")) //When ai reaches the end of the bridge
         {
+            platform = 1; //change this to the platforms number so that the ai doesnt go back to the bridges on the previous platforms
             transform.DOMoveZ(23, 0.2f).OnComplete(() =>
             {
                 agent.enabled = true; //reactivate navmeshagent
