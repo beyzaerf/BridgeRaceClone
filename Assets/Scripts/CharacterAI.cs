@@ -6,6 +6,7 @@ using UnityEngine.AI;
 
 public class CharacterAI : MonoBehaviour
 {
+    public static CharacterAI instance;
     public Character characterEnum;
     [SerializeField] private GameObject targetsParent;
     public List<GameObject> targets = new List<GameObject>();
@@ -21,6 +22,15 @@ public class CharacterAI : MonoBehaviour
     private bool reachedLast;
     private int platform = 0;
 
+    public int Platform { get => platform; set => platform = value; }
+
+    public void Awake()
+    {
+        if(instance == null)
+        {
+            instance = this;
+        }
+    }
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -46,7 +56,7 @@ public class CharacterAI : MonoBehaviour
         {
             //int randomBridge = Random.Range(0, bridges.Length);
             //targetTransform = bridges[randomBridge].GetChild(0).position;
-            if(platform == 0)
+            if(Platform == 0)
             {
                 if (characterEnum == Character.Zero)
                     targetTransform = bridges[0].GetChild(0).position;
@@ -104,8 +114,8 @@ public class CharacterAI : MonoBehaviour
             bricks.Add(other.gameObject);
             targets.Remove(other.gameObject);
 
-            other.transform.localRotation = new Quaternion(0, 0.7071068f, 0, 0.7071068f);
             other.transform.DOLocalMove(pos, 0.2f);
+            transform.LookAt(targetTransform);
             prevObject = other.gameObject;
 
             BrickSpawner.instance.GenerateCubes((int)characterEnum, this);
@@ -155,7 +165,7 @@ public class CharacterAI : MonoBehaviour
         }
         else if(other.CompareTag("End")) //When ai reaches the end of the bridge
         {
-            platform = 1; //change this to the platforms number so that the ai doesnt go back to the bridges on the previous platforms
+            Platform += 1; //change this to the platforms number so that the ai doesnt go back to the bridges on the previous platforms
             transform.DOMoveZ(23, 0.2f).OnComplete(() =>
             {
                 agent.enabled = true; //reactivate navmeshagent

@@ -6,6 +6,7 @@ using DG.Tweening;
 public class Stack : MonoBehaviour
 {
     private GameObject prevObject;
+    private int platform = 0;
     [SerializeField] private GameObject stackObject;
     [SerializeField] private List<GameObject> bricks;
     [SerializeField] private GameObject colliderPrefab;
@@ -60,7 +61,12 @@ public class Stack : MonoBehaviour
                 else
                     collObject = new GameObject();
             }
-            prevObject = bricks[0];
+            else if (other.CompareTag("End"))
+            {
+                platform += 1;
+            }
+            
+            prevObject = bricks[^1];
             if (collObject! && collObject.transform.childCount > 0)
             {
                 collObject.tag = "Bridge";

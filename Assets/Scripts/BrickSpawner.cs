@@ -47,6 +47,7 @@ public class BrickSpawner : MonoBehaviour
         g.SetActive(true);
         g.transform.position = pos;
         g.transform.parent = parent;
+
         if(characterAI!)
         {
             characterAI.targets.Add(g);
@@ -55,6 +56,13 @@ public class BrickSpawner : MonoBehaviour
 
     private Vector3 giveRandomPosition()
     {
+        if (CharacterAI.instance.Platform > 0)
+        {
+            Debug.Log("girdi");
+            minZ += 36;
+            maxZ += 36;
+            return new Vector3(Random.Range(minX, maxX), 0.33f, Random.Range(minZ, maxZ));
+        }
         return new Vector3(Random.Range(minX, maxX), 0.33f, Random.Range(minZ, maxZ));
     }
 }
