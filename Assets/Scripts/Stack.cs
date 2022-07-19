@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class Stack : MonoBehaviour
 {
+    public static Stack instance;
     private GameObject prevObject;
     private int platform = 0;
     [SerializeField] private GameObject stackObject;
@@ -12,6 +13,15 @@ public class Stack : MonoBehaviour
     [SerializeField] private GameObject colliderPrefab;
     public GameObject collObject;
 
+    public int Platform { get => platform; set => platform = value; }
+
+    private void Awake()
+    {
+        if(instance == null)
+        {
+            instance = this;
+        }
+    }
     private void Start()
     {
         prevObject = stackObject.transform.GetChild(0).gameObject; //Initially, previous object is set to an empty object that is the child of stackObject
@@ -32,15 +42,14 @@ public class Stack : MonoBehaviour
             prevObject = other.gameObject;
             other.transform.DOLocalMove(pos, 0.2f);
 
-
             BrickSpawner.instance.GenerateCubes(1);
         }
         //Leaving bricks
-        else if (other.transform.tag.StartsWith("Bridge") && !other.transform.CompareTag("BridgeP"))
-        { // If the object we touch's tag starts with Bridge but doesnt equal BridgeP (meaning that we already activated it)
+        else if (other.transform.CompareTag("Bridge"))
+        { 
             if (bricks.Count > 1)
             {
-                GameObject myObject = bricks[bricks.Count - 1];
+                GameObject myObject = bricks[^1];
                 bricks.RemoveAt(bricks.Count - 1);
                 Destroy(myObject);
                     
@@ -61,22 +70,22 @@ public class Stack : MonoBehaviour
                 else
                     collObject = new GameObject();
             }
-            else if (other.CompareTag("End"))
-            {
-                platform += 1;
-            }
-            
             prevObject = bricks[^1];
             if (collObject! && collObject.transform.childCount > 0)
             {
-                collObject.tag = "Bridge";
-                collObject.transform.GetChild(0).tag = "Bridge";
+                collObject.tag = "Collider";
+                collObject.transform.GetChild(0).tag = "Collider";
             }
+        }
+        else if (other.transform.CompareTag("End")) //not working, therefore the bricks spawning in the second platform is also not working
+        {
+            Platform += 1;
+            Destroy(other.gameObject);
         }
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.transform.CompareTag("Bridge"))
+        if(collision.transform.CompareTag("Collider"))
         {
             if(bricks.Count > 1)
             {
@@ -85,6 +94,10 @@ public class Stack : MonoBehaviour
                     Destroy(collObject);
                 }
             }
+        }
+        else if (collision.transform.CompareTag("BridgeBeginning"))
+        {
+            Destroy(collision.gameObject);
         }
     }
 }

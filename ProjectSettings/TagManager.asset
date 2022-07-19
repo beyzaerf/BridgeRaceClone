@@ -15,6 +15,7 @@ TagManager:
   - BridgeG
   - BridgeBeginning
   - End
+  - Collider
   layers:
   - Default
   - TransparentFX

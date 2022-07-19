@@ -35,13 +35,13 @@ public class BrickSpawner : MonoBehaviour
     private void Generate(GameObject gameObject, Transform parent, CharacterAI characterAI = null)
     {
         GameObject g = Instantiate(gameObject);
-        Vector3 pos = giveRandomPosition();
+        Vector3 pos = GiveRandomPosition();
         g.SetActive(false);
 
         Collider[] colliders = Physics.OverlapSphere(pos, 1, layerMask);
         while(colliders.Length != 0)
         {
-            pos = giveRandomPosition();
+            pos = GiveRandomPosition();
             colliders = Physics.OverlapSphere(pos, 1, layerMask);
         }
         g.SetActive(true);
@@ -54,11 +54,10 @@ public class BrickSpawner : MonoBehaviour
         }
     }
 
-    private Vector3 giveRandomPosition()
+    private Vector3 GiveRandomPosition()
     {
-        if (CharacterAI.instance.Platform > 0)
+        if (Stack.instance.Platform > 0)
         {
-            Debug.Log("girdi");
             minZ += 36;
             maxZ += 36;
             return new Vector3(Random.Range(minX, maxX), 0.33f, Random.Range(minZ, maxZ));

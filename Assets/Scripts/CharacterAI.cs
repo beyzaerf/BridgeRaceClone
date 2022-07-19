@@ -6,7 +6,6 @@ using UnityEngine.AI;
 
 public class CharacterAI : MonoBehaviour
 {
-    public static CharacterAI instance;
     public Character characterEnum;
     [SerializeField] private GameObject targetsParent;
     public List<GameObject> targets = new List<GameObject>();
@@ -21,16 +20,8 @@ public class CharacterAI : MonoBehaviour
     Transform bridgeBeginning = null;
     private bool reachedLast;
     private int platform = 0;
+    private int randomBridge;
 
-    public int Platform { get => platform; set => platform = value; }
-
-    public void Awake()
-    {
-        if(instance == null)
-        {
-            instance = this;
-        }
-    }
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -41,7 +32,9 @@ public class CharacterAI : MonoBehaviour
         {
             targets.Add(targetsParent.transform.GetChild(i).gameObject);
         }
+        randomBridge = Random.Range(0, bridges.Length);
     }
+
     private void Update()
     {
         if(!haveTarget && targets.Count > 0)
@@ -54,20 +47,12 @@ public class CharacterAI : MonoBehaviour
     {
         if (bricks.Count > 4) // choose bridge
         {
-            //int randomBridge = Random.Range(0, bridges.Length);
-            //targetTransform = bridges[randomBridge].GetChild(0).position;
-            if(Platform == 0)
-            {
-                if (characterEnum == Character.Zero)
-                    targetTransform = bridges[0].GetChild(0).position;
-                else if (characterEnum == Character.Two)
-                    targetTransform = bridges[2].GetChild(0).position;
-            }
+            targetTransform = bridges[randomBridge].GetChild(0).position;
         }
         else
         {
             Collider[] hitColliders = Physics.OverlapSphere(transform.position, 10);
-            List<Vector3> ourColors = new List<Vector3>();
+            List<Vector3> ourColors = new();
 
             for (int i = 0; i < hitColliders.Length; i++)
             {
@@ -82,8 +67,7 @@ public class CharacterAI : MonoBehaviour
             }
             else
             {
-                int random = Random.Range(0, targets.Count);
-                targetTransform = targets[random].transform.position;
+                targetTransform = targets[randomBridge].transform.position;
             }
         }
         agent.SetDestination(targetTransform);
@@ -127,7 +111,7 @@ public class CharacterAI : MonoBehaviour
                 if (other.tag.StartsWith("Bridge") && !other.tag.StartsWith(("Bridge") + myMaterial.name.Substring(0, 1)))
                 {
                     agent.enabled = false;
-                    GameObject myObject = bricks[bricks.Count - 1];
+                    GameObject myObject = bricks[^1];
                     bricks.RemoveAt(bricks.Count - 1);
                     Destroy(myObject);
                     if(otherMesh != null)
@@ -165,7 +149,7 @@ public class CharacterAI : MonoBehaviour
         }
         else if(other.CompareTag("End")) //When ai reaches the end of the bridge
         {
-            Platform += 1; //change this to the platforms number so that the ai doesnt go back to the bridges on the previous platforms
+            platform += 1; //change this to the platforms number so that the ai doesnt go back to the bridges on the previous platforms
             transform.DOMoveZ(23, 0.2f).OnComplete(() =>
             {
                 agent.enabled = true; //reactivate navmeshagent
