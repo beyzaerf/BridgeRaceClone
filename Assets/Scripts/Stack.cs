@@ -29,6 +29,7 @@ public class Stack : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log(platform);
         if(other.transform.CompareTag("PinkBrick")) //Picking up bricks
         {
             other.transform.SetParent(stackObject.transform); //Changing brick's parent to stackObject

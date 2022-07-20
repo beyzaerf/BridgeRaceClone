@@ -8,7 +8,7 @@ public class CharacterAI : MonoBehaviour
 {
     public Character characterEnum;
     [SerializeField] private GameObject targetsParent;
-    public List<GameObject> targets = new List<GameObject>();
+    public List<GameObject> targets = new();
     private NavMeshAgent agent;
     private Animator animator;
     private bool haveTarget;
@@ -27,12 +27,11 @@ public class CharacterAI : MonoBehaviour
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         prevObject = stackObject.transform.GetChild(0).gameObject;
-        
-        for(int i = 0; i < targetsParent.transform.childCount; i++) //Filling up the targets list with bricks
+        randomBridge = Random.Range(0, 3);
+        for (int i = 0; i < targetsParent.transform.childCount; i++) //Filling up the targets list with bricks
         {
             targets.Add(targetsParent.transform.GetChild(i).gameObject);
         }
-        randomBridge = Random.Range(0, bridges.Length);
     }
 
     private void Update()
@@ -41,13 +40,15 @@ public class CharacterAI : MonoBehaviour
         {
             ChooseTarget();
         }
+        if (platform == 1)
+            randomBridge = Random.Range(3, 5);
     }
 
     void ChooseTarget()
     {
-        if (bricks.Count > 4) // choose bridge
+        if (bricks.Count > Random.Range(3, 7)) // at how many bricks the ai will leave them
         {
-            targetTransform = bridges[randomBridge].GetChild(0).position;
+            targetTransform = bridges[randomBridge].GetChild(0).position; // choose bridge
         }
         else
         {
