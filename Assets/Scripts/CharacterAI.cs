@@ -13,7 +13,7 @@ public class CharacterAI : MonoBehaviour
     private NavMeshAgent agent;
     private Animator animator;
     private bool haveTarget;
-    private Vector3 targetTransform;
+    public Vector3 targetTransform;
     private GameObject prevObject;
     [SerializeField] private GameObject stackObject;
     [SerializeField] private List<GameObject> bricks;
@@ -21,7 +21,9 @@ public class CharacterAI : MonoBehaviour
     Transform bridgeBeginning = null;
     private bool reachedLast;
     private int platform = 0;
-    private int randomBridge;
+    [SerializeField] private int randomBridge;
+    private TargetController targetController;
+   
 
     public static CharacterAI Instance { get => instance; set => instance = value; }
     public int Platform { get => platform; set => platform = value; }
@@ -33,10 +35,13 @@ public class CharacterAI : MonoBehaviour
     }
     private void Start()
     {
+        targetController = ObjectManager.instance.TargetController.GetComponent<TargetController>();
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         prevObject = stackObject.transform.GetChild(0).gameObject;
-        randomBridge = Random.Range(0, 3);
+        targetController.AddRandom();
+        randomBridge = targetController.Targets[^1];
+
         for (int i = 0; i < targetsParent.transform.childCount; i++) //Filling up the targets list with bricks
         {
             targets.Add(targetsParent.transform.GetChild(i).gameObject);
@@ -45,6 +50,12 @@ public class CharacterAI : MonoBehaviour
 
     private void Update()
     {
+        transform.LookAt(targetTransform); 
+        //Vector3 direction = (targetTransform - transform.position).normalized;
+        //Quaternion toRotation = Quaternion.LookRotation(transform.forward, direction);
+        //toRotation.z = 0;
+        //toRotation.x = 0;
+        //transform.eulerAngles = direction;
         if (!haveTarget && targets.Count > 0)
         {
             ChooseTarget();
@@ -110,7 +121,7 @@ public class CharacterAI : MonoBehaviour
             targets.Remove(other.gameObject);
 
             other.transform.DOLocalMove(pos, 0.2f);
-            transform.LookAt(targetTransform);
+            //transform.LookAt(targetTransform);
             prevObject = other.gameObject;
 
             BrickSpawner.instance.GenerateCubes((int)characterEnum, this);
