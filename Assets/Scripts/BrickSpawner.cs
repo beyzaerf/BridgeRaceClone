@@ -7,7 +7,9 @@ public class BrickSpawner : MonoBehaviour
     public static BrickSpawner instance;
     public GameObject redBrick, greenBrick, pinkBrick;
     public Transform redBrickParent, greenBrickParent, pinkBrickParent;
-    public int minX, maxX, minZ, maxZ;
+    public int minX, maxX;
+    private int minZ = -8;
+    private int maxZ = 2;
     public LayerMask layerMask;
 
     private void Awake()
@@ -19,15 +21,15 @@ public class BrickSpawner : MonoBehaviour
     //0 red 1 pink 2 green
     public void GenerateCubes(int number, CharacterAI characterAI = null)
     {
-        if(number == 0)
+        if (number == 0)
         {
             Generate(redBrick, redBrickParent, characterAI);
         }
-        else if(number == 1)
+        else if (number == 1)
         {
             Generate(pinkBrick, redBrickParent);
         }
-        else if(number == 2)
+        else if (number == 2)
         {
             Generate(greenBrick, greenBrickParent, characterAI);
         }
@@ -56,10 +58,10 @@ public class BrickSpawner : MonoBehaviour
 
     private Vector3 GiveRandomPosition()
     {
-        if (Stack.instance.Platform > 0)
+        if (Stack.instance.Platform > 0 || CharacterAI.Instance.Platform > 0)
         {
-            minZ += 36;
-            maxZ += 36;
+            minZ = 28;
+            maxZ = 38;
             return new Vector3(Random.Range(minX, maxX), 0.33f, Random.Range(minZ, maxZ));
         }
         return new Vector3(Random.Range(minX, maxX), 0.33f, Random.Range(minZ, maxZ));

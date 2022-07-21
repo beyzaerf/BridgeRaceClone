@@ -17,7 +17,7 @@ public class Stack : MonoBehaviour
 
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -29,8 +29,7 @@ public class Stack : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(platform);
-        if(other.transform.CompareTag("PinkBrick")) //Picking up bricks
+        if (other.transform.CompareTag("PinkBrick")) //Picking up bricks
         {
             other.transform.SetParent(stackObject.transform); //Changing brick's parent to stackObject
             Vector3 pos = prevObject.transform.localPosition; //Stacking
@@ -86,9 +85,9 @@ public class Stack : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.transform.CompareTag("Collider"))
+        if (collision.transform.CompareTag("Collider"))
         {
-            if(bricks.Count > 1)
+            if (bricks.Count > 1)
             {
                 if (collObject.transform.childCount > 0)
                 {
@@ -99,6 +98,10 @@ public class Stack : MonoBehaviour
         else if (collision.transform.CompareTag("BridgeBeginning"))
         {
             Destroy(collision.gameObject);
+        }
+        else if (collision.transform.CompareTag("Finish"))
+        {
+            GameManager.Instance.GameWin();
         }
     }
 }

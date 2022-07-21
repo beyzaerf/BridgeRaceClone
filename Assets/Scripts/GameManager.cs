@@ -5,15 +5,19 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public GameManager instance;
+    private static GameManager instance;
     [SerializeField] private GameObject winScreen;
 
+    public static GameManager Instance { get => instance; set => instance = value; }
 
     private void Awake()
     {
-        if (instance == null)
-            instance = this;
+        if (Instance == null)
+            Instance = this;
     }
 
-
+    public void GameWin()
+    {
+        Debug.Log("gamewon "); 
+    }
 }

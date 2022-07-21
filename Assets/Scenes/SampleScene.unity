@@ -1251,6 +1251,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 143058299}
+  - component: {fileID: 143058300}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1273,6 +1274,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &143058300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143058298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8878381f3a7b69441ad2f8c638cc9ee8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  winScreen: {fileID: 0}
 --- !u!1 &147450897
 GameObject:
   m_ObjectHideFlags: 0
@@ -5332,8 +5346,8 @@ GameObject:
   - component: {fileID: 739399512}
   - component: {fileID: 739399511}
   m_Layer: 0
-  m_Name: Platform (2)
-  m_TagString: Untagged
+  m_Name: Platform_3
+  m_TagString: Finish
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -8281,7 +8295,7 @@ GameObject:
   - component: {fileID: 1174679639}
   - component: {fileID: 1174679638}
   m_Layer: 0
-  m_Name: Platform
+  m_Name: Platform_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12802,7 +12816,7 @@ GameObject:
   - component: {fileID: 1863690155}
   - component: {fileID: 1863690154}
   m_Layer: 0
-  m_Name: Platform (1)
+  m_Name: Platform_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

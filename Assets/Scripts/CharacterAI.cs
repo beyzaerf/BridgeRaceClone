@@ -6,6 +6,7 @@ using UnityEngine.AI;
 
 public class CharacterAI : MonoBehaviour
 {
+    private static CharacterAI instance;
     public Character characterEnum;
     [SerializeField] private GameObject targetsParent;
     public List<GameObject> targets = new();
@@ -22,6 +23,14 @@ public class CharacterAI : MonoBehaviour
     private int platform = 0;
     private int randomBridge;
 
+    public static CharacterAI Instance { get => instance; set => instance = value; }
+    public int Platform { get => platform; set => platform = value; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+    }
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -36,11 +45,11 @@ public class CharacterAI : MonoBehaviour
 
     private void Update()
     {
-        if(!haveTarget && targets.Count > 0)
+        if (!haveTarget && targets.Count > 0)
         {
             ChooseTarget();
         }
-        if (platform == 1)
+        if (Platform == 1)
             randomBridge = Random.Range(3, 5);
     }
 
@@ -96,6 +105,7 @@ public class CharacterAI : MonoBehaviour
             pos.x = 0;
             pos.z = 0;
 
+            other.transform.localRotation = new Quaternion(0, 0.7071068f, 0, 0.7071068f); // making the bricks face the same way
             bricks.Add(other.gameObject);
             targets.Remove(other.gameObject);
 
@@ -107,7 +117,7 @@ public class CharacterAI : MonoBehaviour
         }
         else if (other.tag.StartsWith("Bridge"))
         {
-            if(bricks.Count > 0)
+            if (bricks.Count > 0)
             {
                 if (other.tag.StartsWith("Bridge") && !other.tag.StartsWith(("Bridge") + myMaterial.name.Substring(0, 1)))
                 {
@@ -115,7 +125,7 @@ public class CharacterAI : MonoBehaviour
                     GameObject myObject = bricks[^1];
                     bricks.RemoveAt(bricks.Count - 1);
                     Destroy(myObject);
-                    if(otherMesh != null)
+                    if (otherMesh != null)
                     {
                         otherMesh.material = myMaterial;
                         otherMesh.enabled = true;
@@ -133,24 +143,24 @@ public class CharacterAI : MonoBehaviour
                 }
                 transform.DOMoveZ(transform.position.z + 0.5f, 0.2f);
             }
-            else if(!reachedLast)
+            else if (!reachedLast)
             {
                 reachedLast = true;
-                transform.DORotate(new Vector3(0, transform.eulerAngles.y + 180, 0), 0.2f).OnComplete(() =>
-                {
+                //transform.DORotate(new Vector3(0, transform.eulerAngles.y + 180, 0), 0.2f).OnComplete(() =>
+                //{
                     transform.DOMove(bridgeBeginning.position, 1).OnComplete(() =>
                     {
                         agent.enabled = true;
                         ChooseTarget();
                     });
-                });
+                //});
                 prevObject = stackObject.transform.GetChild(0).gameObject;
             }
             reachedLast = false;
         }
-        else if(other.CompareTag("End")) //When ai reaches the end of the bridge
+        else if (other.CompareTag("End")) //When ai reaches the end of the bridge
         {
-            platform += 1; //change this to the platforms number so that the ai doesnt go back to the bridges on the previous platforms
+            Platform += 1; //change this to the platforms number so that the ai doesnt go back to the bridges on the previous platforms
             transform.DOMoveZ(23, 0.2f).OnComplete(() =>
             {
                 agent.enabled = true; //reactivate navmeshagent
@@ -159,6 +169,14 @@ public class CharacterAI : MonoBehaviour
                 haveTarget = false;
                 ChooseTarget(); //choose new targets 
             });
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.transform.CompareTag("Finish"))
+        {
+            GameManager.Instance.GameWin();
         }
     }
 }
