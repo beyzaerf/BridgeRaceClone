@@ -11,7 +11,13 @@ public class TargetController : MonoBehaviour
 
     public void AddRandom()
     {
-        randomBridge = Random.Range(0, 3);
+        if (CharacterAI.Instance.Platform == 0)
+            randomBridge = Random.Range(0, 3);
+        else if (CharacterAI.Instance.Platform > 0)
+        {
+            randomBridge = Random.Range(3, 5);
+            Debug.Log("life is unfair");
+        }
         if (Targets.Count == 0)
         {
             Targets.Add(randomBridge);

@@ -23,7 +23,7 @@ public class CharacterAI : MonoBehaviour
     private int platform = 0;
     [SerializeField] private int randomBridge;
     private TargetController targetController;
-   
+    private Coroutine LookCoroutine;
 
     public static CharacterAI Instance { get => instance; set => instance = value; }
     public int Platform { get => platform; set => platform = value; }
@@ -50,18 +50,39 @@ public class CharacterAI : MonoBehaviour
 
     private void Update()
     {
-        transform.LookAt(targetTransform); 
+        //I've tried to fix the rotation with all of these but none of them worked.
+        //Quaternion originalRotation = transform.rotation;
+        //transform.LookAt(targetTransform);
+        //Quaternion newRotation = transform.rotation;
+        //Quaternion.Lerp(originalRotation, newRotation, 1 * Time.deltaTime);
+
+        //Vector3 targetDirection = targetTransform - transform.position;
+        //targetDirection.y = 0;
+        //transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDirection), Time.time * 5);
+
         //Vector3 direction = (targetTransform - transform.position).normalized;
         //Quaternion toRotation = Quaternion.LookRotation(transform.forward, direction);
         //toRotation.z = 0;
         //toRotation.x = 0;
         //transform.eulerAngles = direction;
+
+        //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(targetTransform), Time.deltaTime);
+        if (LookCoroutine != null)
+        {
+            StopCoroutine(LookCoroutine);
+        }
+        StartCoroutine(LookAt());
+
         if (!haveTarget && targets.Count > 0)
         {
             ChooseTarget();
         }
         if (Platform == 1)
+        {
+            //targetController.AddRandom(3, 5);
+            //randomBridge = targetController.Targets[^1];
             randomBridge = Random.Range(3, 5);
+        }
     }
 
     void ChooseTarget()
@@ -121,7 +142,6 @@ public class CharacterAI : MonoBehaviour
             targets.Remove(other.gameObject);
 
             other.transform.DOLocalMove(pos, 0.2f);
-            //transform.LookAt(targetTransform);
             prevObject = other.gameObject;
 
             BrickSpawner.instance.GenerateCubes((int)characterEnum, this);
@@ -152,18 +172,18 @@ public class CharacterAI : MonoBehaviour
                 {
                     transform.position += Vector3.forward;
                 }
-                transform.DOMoveZ(transform.position.z + 0.5f, 0.2f);
+                transform.DOMoveZ(transform.position.z + 0.6f, 0.2f);
             }
             else if (!reachedLast)
             {
                 reachedLast = true;
                 //transform.DORotate(new Vector3(0, transform.eulerAngles.y + 180, 0), 0.2f).OnComplete(() =>
                 //{
-                    transform.DOMove(bridgeBeginning.position, 1).OnComplete(() =>
-                    {
-                        agent.enabled = true;
-                        ChooseTarget();
-                    });
+                transform.DOMove(bridgeBeginning.position, 1).OnComplete(() =>
+                {
+                    agent.enabled = true;
+                    ChooseTarget();
+                });
                 //});
                 prevObject = stackObject.transform.GetChild(0).gameObject;
             }
@@ -188,6 +208,20 @@ public class CharacterAI : MonoBehaviour
         if (collision.transform.CompareTag("Finish"))
         {
             GameManager.Instance.GameWin();
+        }
+    }
+
+    private IEnumerator LookAt()
+    {
+        Quaternion lookRotation = Quaternion.LookRotation(targetTransform - transform.position);
+        float time = 0;
+
+        Quaternion initialRotation = transform.rotation;
+        while (time < 1)
+        {
+            transform.rotation = Quaternion.Slerp(initialRotation, lookRotation, time);
+            time += Time.deltaTime * 1;
+            yield return null;
         }
     }
 }
