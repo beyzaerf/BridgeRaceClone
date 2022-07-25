@@ -52,7 +52,7 @@ public class BrickSpawner : MonoBehaviour
 
         if(characterAI!)
         {
-            characterAI.targets.Add(g);
+            characterAI.Targets.Add(g);
         }
     }
 

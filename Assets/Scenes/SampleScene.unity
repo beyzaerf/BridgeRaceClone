@@ -112,7 +112,7 @@ NavMeshSettings:
     agentClimb: 0.4
     ledgeDropHeight: 0
     maxJumpAcrossDistance: 0
-    minRegionArea: 2
+    minRegionArea: 0
     manualCellSize: 0
     cellSize: 0.16666667
     manualTileSize: 0
@@ -13812,19 +13812,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebf5633db23e83840aafcdeccb99e468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterEnum: 2
   targetsParent: {fileID: 55654848}
-  targets: []
-  targetTransform: {x: 0, y: 0, z: 0}
   stackObject: {fileID: 1783364436}
-  bricks: []
   bridges:
   - {fileID: 1229014879}
   - {fileID: 689033367}
   - {fileID: 310907940}
   - {fileID: 940143149}
   - {fileID: 1283314285}
-  randomBridge: 0
+  haveTarget: 0
+  characterEnum: 2
 --- !u!136 &2011741174
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -14747,19 +14744,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebf5633db23e83840aafcdeccb99e468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterEnum: 0
   targetsParent: {fileID: 100697529}
-  targets: []
-  targetTransform: {x: 0, y: 0, z: 0}
   stackObject: {fileID: 2070131647}
-  bricks: []
   bridges:
   - {fileID: 1229014879}
   - {fileID: 689033367}
   - {fileID: 310907940}
   - {fileID: 940143149}
   - {fileID: 1283314285}
-  randomBridge: 0
+  haveTarget: 0
+  characterEnum: 0
 --- !u!136 &273824320753680999
 CapsuleCollider:
   m_ObjectHideFlags: 0

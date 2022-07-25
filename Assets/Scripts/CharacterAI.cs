@@ -6,27 +6,28 @@ using UnityEngine.AI;
 
 public class CharacterAI : MonoBehaviour
 {
-    private static CharacterAI instance;
-    public Character characterEnum;
     [SerializeField] private GameObject targetsParent;
-    public List<GameObject> targets = new();
+    [SerializeField] private GameObject stackObject;
+    [SerializeField] Transform[] bridges;
+    [SerializeField] private bool haveTarget;
+    public List<GameObject> bricks;
+    public Character characterEnum;
+    private static CharacterAI instance;
+    private List<GameObject> targets = new();
     private NavMeshAgent agent;
     private Animator animator;
-    private bool haveTarget;
-    public Vector3 targetTransform;
+    private Vector3 targetTransform;
     private GameObject prevObject;
-    [SerializeField] private GameObject stackObject;
-    [SerializeField] private List<GameObject> bricks;
-    [SerializeField] Transform[] bridges;
-    Transform bridgeBeginning = null;
+    private Transform bridgeBeginning = null;
     private bool reachedLast;
     private int platform = 0;
-    [SerializeField] private int randomBridge;
+    private int randomBridge;
     private TargetController targetController;
-    private Coroutine LookCoroutine;
+    private int secondRandomBridge;
 
     public static CharacterAI Instance { get => instance; set => instance = value; }
     public int Platform { get => platform; set => platform = value; }
+    public List<GameObject> Targets { get => targets; set => targets = value; }
 
     private void Awake()
     {
@@ -35,53 +36,43 @@ public class CharacterAI : MonoBehaviour
     }
     private void Start()
     {
+        // Variables for easier readability 
         targetController = ObjectManager.instance.TargetController.GetComponent<TargetController>();
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         prevObject = stackObject.transform.GetChild(0).gameObject;
+
+        // Make choosing bricks random
         targetController.AddRandom();
         randomBridge = targetController.Targets[^1];
 
-        for (int i = 0; i < targetsParent.transform.childCount; i++) //Filling up the targets list with bricks
+        agent.updateRotation = false; // Turning off the rotation of navAgentMesh because it doesnt turn smoothly
+
+        secondRandomBridge = Random.Range(3, 4);
+        for (int i = 0; i < targetsParent.transform.childCount; i++) // Filling up the targets list with bricks
         {
-            targets.Add(targetsParent.transform.GetChild(i).gameObject);
+            Targets.Add(targetsParent.transform.GetChild(i).gameObject);
         }
     }
 
     private void Update()
     {
-        //I've tried to fix the rotation with all of these but none of them worked.
-        //Quaternion originalRotation = transform.rotation;
-        //transform.LookAt(targetTransform);
-        //Quaternion newRotation = transform.rotation;
-        //Quaternion.Lerp(originalRotation, newRotation, 1 * Time.deltaTime);
+        // Making the rotation of the navAgentMesh smooth
+        Vector3 targetDirection = targetTransform - transform.position;
+        targetDirection.y = 0;
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDirection), Time.time * 0.5f);
 
-        //Vector3 targetDirection = targetTransform - transform.position;
-        //targetDirection.y = 0;
-        //transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDirection), Time.time * 5);
-
-        //Vector3 direction = (targetTransform - transform.position).normalized;
-        //Quaternion toRotation = Quaternion.LookRotation(transform.forward, direction);
-        //toRotation.z = 0;
-        //toRotation.x = 0;
-        //transform.eulerAngles = direction;
-
-        //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(targetTransform), Time.deltaTime);
-        if (LookCoroutine != null)
-        {
-            StopCoroutine(LookCoroutine);
-        }
-        StartCoroutine(LookAt());
-
-        if (!haveTarget && targets.Count > 0)
+        if (!haveTarget && Targets.Count > 0)
         {
             ChooseTarget();
         }
         if (Platform == 1)
         {
-            //targetController.AddRandom(3, 5);
-            //randomBridge = targetController.Targets[^1];
-            randomBridge = Random.Range(3, 5);
+            //randomBridge = secondRandomBridge;
+            if (characterEnum == Character.Zero)
+                randomBridge = 3;
+            else if (characterEnum == Character.Two)
+                randomBridge = 4;
         }
     }
 
@@ -109,7 +100,7 @@ public class CharacterAI : MonoBehaviour
             }
             else
             {
-                targetTransform = targets[randomBridge].transform.position;
+                targetTransform = Targets[Random.Range(0, targets.Count - 1)].transform.position;
             }
         }
         agent.SetDestination(targetTransform);
@@ -139,7 +130,7 @@ public class CharacterAI : MonoBehaviour
 
             other.transform.localRotation = new Quaternion(0, 0.7071068f, 0, 0.7071068f); // making the bricks face the same way
             bricks.Add(other.gameObject);
-            targets.Remove(other.gameObject);
+            Targets.Remove(other.gameObject);
 
             other.transform.DOLocalMove(pos, 0.2f);
             prevObject = other.gameObject;
@@ -156,6 +147,12 @@ public class CharacterAI : MonoBehaviour
                     GameObject myObject = bricks[^1];
                     bricks.RemoveAt(bricks.Count - 1);
                     Destroy(myObject);
+
+                    //agent.updateRotation = true;
+                    //transform.eulerAngles = Vector3.zero;
+                    //if (bricks.Count == 1)
+                    //    transform.rotation = new Quaternion(0, 180, 0, 0);
+
                     if (otherMesh != null)
                     {
                         otherMesh.material = myMaterial;
@@ -177,14 +174,12 @@ public class CharacterAI : MonoBehaviour
             else if (!reachedLast)
             {
                 reachedLast = true;
-                //transform.DORotate(new Vector3(0, transform.eulerAngles.y + 180, 0), 0.2f).OnComplete(() =>
-                //{
                 transform.DOMove(bridgeBeginning.position, 1).OnComplete(() =>
                 {
                     agent.enabled = true;
+                    haveTarget = false;
                     ChooseTarget();
                 });
-                //});
                 prevObject = stackObject.transform.GetChild(0).gameObject;
             }
             reachedLast = false;
@@ -196,7 +191,7 @@ public class CharacterAI : MonoBehaviour
             {
                 agent.enabled = true; //reactivate navmeshagent
                 prevObject = stackObject.transform.GetChild(0).gameObject; 
-                targets.Clear(); //empty targets because it is filled with previous levels bricks 
+                Targets.Clear(); //empty targets because it is filled with previous levels bricks 
                 haveTarget = false;
                 ChooseTarget(); //choose new targets 
             });
@@ -208,20 +203,6 @@ public class CharacterAI : MonoBehaviour
         if (collision.transform.CompareTag("Finish"))
         {
             GameManager.Instance.GameWin();
-        }
-    }
-
-    private IEnumerator LookAt()
-    {
-        Quaternion lookRotation = Quaternion.LookRotation(targetTransform - transform.position);
-        float time = 0;
-
-        Quaternion initialRotation = transform.rotation;
-        while (time < 1)
-        {
-            transform.rotation = Quaternion.Slerp(initialRotation, lookRotation, time);
-            time += Time.deltaTime * 1;
-            yield return null;
         }
     }
 }
