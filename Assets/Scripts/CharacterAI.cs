@@ -23,7 +23,7 @@ public class CharacterAI : MonoBehaviour
     private int platform = 0;
     private int randomBridge;
     private TargetController targetController;
-    private int secondRandomBridge;
+    private bool shouldTurn;
 
     public static CharacterAI Instance { get => instance; set => instance = value; }
     public int Platform { get => platform; set => platform = value; }
@@ -41,6 +41,7 @@ public class CharacterAI : MonoBehaviour
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         prevObject = stackObject.transform.GetChild(0).gameObject;
+        shouldTurn = false;
 
         // Make choosing bricks random
         targetController.AddRandom();
@@ -48,7 +49,6 @@ public class CharacterAI : MonoBehaviour
 
         agent.updateRotation = false; // Turning off the rotation of navAgentMesh because it doesnt turn smoothly
 
-        secondRandomBridge = Random.Range(3, 4);
         for (int i = 0; i < targetsParent.transform.childCount; i++) // Filling up the targets list with bricks
         {
             Targets.Add(targetsParent.transform.GetChild(i).gameObject);
@@ -58,9 +58,12 @@ public class CharacterAI : MonoBehaviour
     private void Update()
     {
         // Making the rotation of the navAgentMesh smooth
-        Vector3 targetDirection = targetTransform - transform.position;
-        targetDirection.y = 0;
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDirection), Time.time * 0.5f);
+        if (!shouldTurn)
+        {
+            Vector3 targetDirection = targetTransform - transform.position;
+            targetDirection.y = 0;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDirection), Time.time * 0.5f);
+        }
 
         if (!haveTarget && Targets.Count > 0)
         {
@@ -68,7 +71,6 @@ public class CharacterAI : MonoBehaviour
         }
         if (Platform == 1)
         {
-            //randomBridge = secondRandomBridge;
             if (characterEnum == Character.Zero)
                 randomBridge = 3;
             else if (characterEnum == Character.Two)
@@ -127,6 +129,7 @@ public class CharacterAI : MonoBehaviour
             pos.y += 0.2f;
             pos.x = 0;
             pos.z = 0;
+            Debug.Log(pos);
 
             other.transform.localRotation = new Quaternion(0, 0.7071068f, 0, 0.7071068f); // making the bricks face the same way
             bricks.Add(other.gameObject);
@@ -143,15 +146,19 @@ public class CharacterAI : MonoBehaviour
             {
                 if (other.tag.StartsWith("Bridge") && !other.tag.StartsWith(("Bridge") + myMaterial.name.Substring(0, 1)))
                 {
+                    shouldTurn = true;
+                    transform.eulerAngles = Vector3.zero;
+
                     agent.enabled = false;
                     GameObject myObject = bricks[^1];
                     bricks.RemoveAt(bricks.Count - 1);
                     Destroy(myObject);
 
                     //agent.updateRotation = true;
-                    //transform.eulerAngles = Vector3.zero;
-                    //if (bricks.Count == 1)
-                    //    transform.rotation = new Quaternion(0, 180, 0, 0);
+                    if (bricks.Count == 1)
+                    {
+                        transform.rotation = new Quaternion(0, 180, 0, 0);
+                    }
 
                     if (otherMesh != null)
                     {
@@ -170,6 +177,7 @@ public class CharacterAI : MonoBehaviour
                     transform.position += Vector3.forward;
                 }
                 transform.DOMoveZ(transform.position.z + 0.6f, 0.2f);
+                shouldTurn = false;
             }
             else if (!reachedLast)
             {
@@ -196,13 +204,13 @@ public class CharacterAI : MonoBehaviour
                 ChooseTarget(); //choose new targets 
             });
         }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.transform.CompareTag("Finish"))
+        else if (other.CompareTag("Finish")) //Ai winning the game 
         {
+            Debug.Log("game was won by " + transform.name);
             GameManager.Instance.GameWin();
+            agent.enabled = false;
+            transform.position = new Vector3(0, 0.33f, 75);
+            animator.SetBool("running", false);
         }
     }
 }

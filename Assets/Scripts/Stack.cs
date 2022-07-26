@@ -77,7 +77,7 @@ public class Stack : MonoBehaviour
                 collObject.transform.GetChild(0).tag = "Collider";
             }
         }
-        else if (other.transform.CompareTag("End")) //not working, therefore the bricks spawning in the second platform is also not working
+        else if (other.transform.CompareTag("End"))
         {
             Platform += 1;
             Destroy(other.gameObject);
@@ -102,6 +102,7 @@ public class Stack : MonoBehaviour
         else if (collision.transform.CompareTag("Finish"))
         {
             GameManager.Instance.GameWin();
+            Debug.Log("you won");
         }
     }
 }
